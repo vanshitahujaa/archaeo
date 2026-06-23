@@ -1,0 +1,38 @@
+{
+  "_comment": "Recorded prForCommit responses keyed by commit SHA label. Used by loadHostResponses.ts. Shapes match PullRequest (src/core/types.ts).",
+  "responses": {
+    "rename__introduce": null,
+    "rename__rename": null,
+    "move-to-utility__introduce": null,
+    "move-to-utility__move": null,
+    "move-to-utility__post-move-use": null,
+    "squash__squash": {
+      "number": 42,
+      "title": "feat(payments): add idempotency key + amount validation",
+      "body": "Adds idempotency key requirement and amount validation to the charge flow.\n\nCloses #17\n\nThis prevents double-charge scenarios by requiring callers to supply a unique idempotency key per request.",
+      "authorLogin": "alice",
+      "mergedSha": "__PLACEHOLDER_squash__",
+      "state": "merged"
+    },
+    "cherry-pick__original": {
+      "number": 55,
+      "title": "fix(charge): guard against non-positive amounts",
+      "body": "Guards the charge function against non-positive amounts.\n\nCloses #23\n\nWithout this guard, a zero-amount charge could be processed silently.",
+      "authorLogin": "bob",
+      "mergedSha": "__PLACEHOLDER_original__",
+      "state": "merged"
+    },
+    "cherry-pick__cherry-picked": {
+      "number": 55,
+      "title": "fix(charge): guard against non-positive amounts",
+      "body": "Guards the charge function against non-positive amounts.\n\nCloses #23\n\nWithout this guard, a zero-amount charge could be processed silently.",
+      "authorLogin": "bob",
+      "mergedSha": "__PLACEHOLDER_cherry-picked__",
+      "state": "merged"
+    },
+    "cosmetic-only__behavioral": null,
+    "cosmetic-only__cosmetic": null,
+    "missing-pr__init": null,
+    "missing-pr__missing-pr": null
+  }
+}

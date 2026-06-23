@@ -1,0 +1,100 @@
+{
+  "_comment": "Recorded reviewComments responses keyed by PR number. Shapes match ReviewComment[] (src/core/types.ts). PR 42 has ONE substantive comment among many noise comments — for comment-ranking tests.",
+  "responses": {
+    "42": [
+      {
+        "author": "priya",
+        "body": "this fixes the idempotency gap — without the key check, network retries from the mobile client were creating duplicate charges in prod. the key must be globally unique per request.",
+        "path": "payments.ts",
+        "line": 2,
+        "submittedAt": "2024-03-03T14:22:00Z"
+      },
+      {
+        "author": "ci-bot",
+        "body": "CI passed",
+        "path": null,
+        "line": null,
+        "submittedAt": "2024-03-03T13:00:00Z"
+      },
+      {
+        "author": "dave",
+        "body": "nit",
+        "path": "payments.ts",
+        "line": 1,
+        "submittedAt": "2024-03-03T13:30:00Z"
+      },
+      {
+        "author": "dave",
+        "body": "lgtm",
+        "path": null,
+        "line": null,
+        "submittedAt": "2024-03-03T15:00:00Z"
+      },
+      {
+        "author": "deploy-bot",
+        "body": "Deploy preview ready",
+        "path": null,
+        "line": null,
+        "submittedAt": "2024-03-03T13:05:00Z"
+      },
+      {
+        "author": "carol",
+        "body": "ship it",
+        "path": null,
+        "line": null,
+        "submittedAt": "2024-03-03T16:00:00Z"
+      },
+      {
+        "author": "frank",
+        "body": "style",
+        "path": "payments.ts",
+        "line": 3,
+        "submittedAt": "2024-03-03T13:45:00Z"
+      },
+      {
+        "author": "grace",
+        "body": "typo",
+        "path": "payments.ts",
+        "line": 1,
+        "submittedAt": "2024-03-03T13:50:00Z"
+      },
+      {
+        "author": "heidi",
+        "body": "+1",
+        "path": null,
+        "line": null,
+        "submittedAt": "2024-03-03T14:00:00Z"
+      },
+      {
+        "author": "ivan",
+        "body": "👍",
+        "path": null,
+        "line": null,
+        "submittedAt": "2024-03-03T14:05:00Z"
+      }
+    ],
+    "55": [
+      {
+        "author": "priya",
+        "body": "this prevents silent $0 charges — without the guard a zero-amount call would reach the payment provider and create a confusing transaction record. the error message should mention the valid range.",
+        "path": "charge.ts",
+        "line": 2,
+        "submittedAt": "2024-04-09T11:30:00Z"
+      },
+      {
+        "author": "ci-bot",
+        "body": "CI passed",
+        "path": null,
+        "line": null,
+        "submittedAt": "2024-04-09T10:00:00Z"
+      },
+      {
+        "author": "dave",
+        "body": "lgtm",
+        "path": null,
+        "line": null,
+        "submittedAt": "2024-04-09T12:00:00Z"
+      }
+    ]
+  }
+}

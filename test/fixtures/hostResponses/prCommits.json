@@ -1,0 +1,30 @@
+{
+  "_comment": "Recorded prCommits responses keyed by PR number. Shapes match Commit[] (src/core/types.ts). PR 42 has two original commits that were squash-merged; these are the commits recoverable via the prCommits host API even after branch deletion.",
+  "responses": {
+    "42": [
+      {
+        "sha": "__PLACEHOLDER_feature-1__",
+        "authorLogin": "alice",
+        "authorName": "Alice Dev",
+        "authoredAt": "2024-03-02T09:00:00Z",
+        "message": "feat(payments): require idempotency key"
+      },
+      {
+        "sha": "__PLACEHOLDER_feature-2__",
+        "authorLogin": "alice",
+        "authorName": "Alice Dev",
+        "authoredAt": "2024-03-03T10:00:00Z",
+        "message": "feat(payments): validate amount is positive"
+      }
+    ],
+    "55": [
+      {
+        "sha": "__PLACEHOLDER_original__",
+        "authorLogin": "bob",
+        "authorName": "Bob Dev",
+        "authoredAt": "2024-04-10T10:00:00Z",
+        "message": "fix(charge): guard against non-positive amounts"
+      }
+    ]
+  }
+}
