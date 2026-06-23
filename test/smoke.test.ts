@@ -30,19 +30,22 @@ describe('phase 0 contracts', () => {
     await store.close();
   });
 
-  it('Engine is constructable from its deps (stub throws until #47)', () => {
-    // The point is that the wiring compiles and the seam is real, not behavior yet.
+  it('Engine is constructable from its deps (#27 implemented — wiring is real)', () => {
+    // The point is that the wiring compiles and the seam is real. explainLine is now
+    // implemented (#27), so we only assert constructability here; behavior is covered by
+    // test/provenance/engine.e2e.test.ts against real git + a real store.
     const engine = new Engine({
-      // deps are not exercised by the stub; cast through unknown for the smoke test only.
       git: {} as never,
       host: {} as never,
       store: {} as never,
       repo: 'owner/name',
     });
-    expect(() => engine.explainLine('a.ts', 1)).toThrow(NotImplemented);
+    expect(engine).toBeInstanceOf(Engine);
   });
 
-  it('classifier stub is wired (throws until #40)', () => {
-    expect(() => classifyChange({ added: [], removed: [] })).toThrow(NotImplemented);
+  it('classifier is implemented (#20): classifies a behavioral change', () => {
+    const out = classifyChange({ added: ['if (x <= 0) return false;'], removed: [] });
+    expect(out.isCosmetic).toBe(false);
+    expect(out.reason.length).toBeGreaterThan(0);
   });
 });
