@@ -23,9 +23,11 @@ describe('phase 0 contracts', () => {
     expect(e.hint).toBe('set X');
   });
 
-  it('SqliteStore implements the Store seam (stub throws until #10)', () => {
+  it('SqliteStore implements the Store seam (init() no longer throws — #10 done)', async () => {
     const store = new SqliteStore({ dbPath: ':memory:' });
-    expect(() => store.init()).toThrow(NotImplemented);
+    // init() now runs the real schema migration; it must not throw.
+    await expect(store.init()).resolves.toBeUndefined();
+    await store.close();
   });
 
   it('Engine is constructable from its deps (stub throws until #47)', () => {
