@@ -14,7 +14,7 @@
  *   so calling it multiple times is safe.
  */
 
-import { DatabaseSync } from 'node:sqlite';
+import { createRequire } from 'node:module';
 import type {
   CachedProvenance,
   Commit,
@@ -38,6 +38,16 @@ import {
   type PrRow,
   type ReviewCommentRow,
 } from './mappers.js';
+
+// `node:sqlite` is a Node 22.5+ builtin that bundlers (esbuild/Vite) mishandle: not being
+// in their hardcoded builtin list, they strip the `node:` prefix and emit a broken bare
+// `sqlite` import. Load it via createRequire so the running Node resolves the real builtin
+// regardless of bundler. `DatabaseSync` is declared as both a value (the class) and a type
+// (its instance) so the rest of the file is unchanged. See DECISIONS.md D-001.
+const DatabaseSync = (
+  createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite')
+).DatabaseSync;
+type DatabaseSync = InstanceType<typeof DatabaseSync>;
 
 export interface SqliteStoreOptions {
   /** Path to the SQLite file. ':memory:' for tests. */
