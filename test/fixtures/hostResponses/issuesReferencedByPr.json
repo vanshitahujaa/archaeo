@@ -1,0 +1,21 @@
+{
+  "_comment": "Recorded issuesReferencedByPr responses keyed by PR number. Shapes match Issue[] (src/core/types.ts).",
+  "responses": {
+    "42": [
+      {
+        "number": 17,
+        "title": "Prevent double charges due to missing idempotency key",
+        "body": "When the charge endpoint is called multiple times with the same request (e.g. due to a network retry), we risk charging the customer twice. We need an idempotency key to de-duplicate requests.\n\nAcceptance criteria:\n- `charge()` must require an idempotency key\n- duplicate calls with the same key must be no-ops",
+        "state": "closed"
+      }
+    ],
+    "55": [
+      {
+        "number": 23,
+        "title": "Zero-amount charges succeed silently",
+        "body": "A bug was filed where a zero-amount charge passes through to the payment provider and creates a $0 transaction. The fix should guard against non-positive amounts at the function boundary.\n\nReproduced in staging with `charge(0)`.",
+        "state": "closed"
+      }
+    ]
+  }
+}
