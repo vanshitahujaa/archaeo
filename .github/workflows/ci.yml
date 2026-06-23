@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# implement.md Part I.5: install, typecheck, lint, test, build on every PR.
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Enable corepack (pnpm)
+        run: corepack enable
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Test
+        run: pnpm test
+
+      - name: Build
+        run: pnpm build
+
+  # Part I.5: benchmark smoke on area:tracer PRs (own-repos subset).
+  benchmark-smoke:
+    runs-on: ubuntu-latest
+    if: contains(join(github.event.pull_request.labels.*.name, ','), 'area:tracer')
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+      - name: Enable corepack (pnpm)
+        run: corepack enable
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Benchmark smoke (own-repos subset)
+        run: pnpm bench || echo "benchmark harness not yet implemented (#62)"

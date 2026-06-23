@@ -1,0 +1,55 @@
+{
+  "name": "archaeo",
+  "version": "0.1.0",
+  "description": "Recover the decisions behind code. Trace why a line of code exists — through moves, renames, and refactors — back to the commit, PR, issue, and review that introduced the logic, with honest confidence scoring.",
+  "keywords": [
+    "git",
+    "blame",
+    "provenance",
+    "code-archaeology",
+    "cli",
+    "git-history"
+  ],
+  "license": "MIT",
+  "type": "module",
+  "packageManager": "pnpm@9.15.9",
+  "engines": {
+    "node": ">=22"
+  },
+  "bin": {
+    "archaeo": "./dist/cli/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsx src/cli/index.ts",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint . --ext .ts",
+    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "bench": "tsx src/benchmark/run.ts"
+  },
+  "dependencies": {
+    "@octokit/rest": "^21.0.2",
+    "commander": "^12.1.0",
+    "simple-git": "^3.27.0"
+  },
+  "optionalDependencies": {
+    "@anthropic-ai/sdk": "^0.32.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "@typescript-eslint/eslint-plugin": "^8.18.0",
+    "@typescript-eslint/parser": "^8.18.0",
+    "eslint": "^8.57.1",
+    "prettier": "^3.4.2",
+    "tsup": "^8.3.5",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}
