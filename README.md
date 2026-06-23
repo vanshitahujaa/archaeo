@@ -124,8 +124,8 @@ versions (see [`implement.md`](implement.md) Part A.4).
 npm i -g archaeo
 
 # from source:
-git clone https://github.com/vanshitahujaa/Guffy.git
-cd Guffy
+git clone https://github.com/vanshitahujaa/archaeo.git
+cd archaeo
 corepack pnpm@9 install
 corepack pnpm@9 build
 node dist/cli/index.js --help
