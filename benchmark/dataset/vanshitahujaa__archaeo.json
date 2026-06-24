@@ -1,0 +1,25 @@
+{
+  "_comment": "Real-repo seed for vanshitahujaa/archaeo itself (issue #36). Part H.1 dataset format. These are KNOWN-correct entries — verified by the Lead against the actual merged PRs (git log shows gitClient.ts was introduced by PR #40 and linker.ts by PR #42). This dataset is OPT-IN: the harness only runs it when given a local clone path AND a GITHUB_TOKEN (see benchmark/dataset/README.md). The default `pnpm bench` runs the offline fixtures only. commitPin is HEAD at seed time; re-pin if you re-clone at a different revision.",
+  "repo": "vanshitahujaa/archaeo",
+  "commitPin": "89cf6f9fac5793935e52d8795650dc548f07028a",
+  "items": [
+    {
+      "repo": "vanshitahujaa/archaeo",
+      "commitPin": "89cf6f9fac5793935e52d8795650dc548f07028a",
+      "path": "src/integration/git/gitClient.ts",
+      "line": 140,
+      "questionType": "why-line",
+      "expected": { "introducingPr": 40 },
+      "notes": "LocalGitClient was introduced by PR #40 (feat(integration): git client + GitHub host + auth/cache). Verified by the Lead via `git log -1 -- src/integration/git/gitClient.ts`."
+    },
+    {
+      "repo": "vanshitahujaa/archaeo",
+      "commitPin": "89cf6f9fac5793935e52d8795650dc548f07028a",
+      "path": "src/provenance/linker.ts",
+      "line": 70,
+      "questionType": "why-line",
+      "expected": { "introducingPr": 42 },
+      "notes": "EvidenceLinker was introduced by PR #42 (feat(provenance): provenance engine + risk analyzer — the moat). Verified by the Lead via `git log -1 -- src/provenance/linker.ts`."
+    }
+  ]
+}
