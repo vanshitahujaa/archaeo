@@ -77,6 +77,33 @@ function noEvidenceAnswer(confidence: EvidenceBundle['confidence']): WhyAnswer {
 }
 
 /**
+ * Reduce a free-text evidence body (PR/issue body, commit message, review comment) to a
+ * crisp first prose sentence, stripping markdown/bot noise (#45). The fake provider is not a
+ * real LLM, but it should still read like a summary, not a raw paste of `## Summary`, blockquote
+ * "tips", code fences, or HTML comments (e.g. CodeRabbit output).
+ */
+export function clean(text: string, maxLen = 160): string {
+  let prose = '';
+  for (const raw of text.split('\n')) {
+    const l = raw.trim();
+    if (!l) continue;
+    if (l.startsWith('#')) continue; // markdown heading
+    if (l.startsWith('>')) continue; // blockquote (bot tips / quoted text)
+    if (l.startsWith('<')) continue; // HTML comment / tag
+    if (l.startsWith('```')) continue; // code fence
+    if (l.startsWith('---') || l.startsWith('===')) continue; // rules / separators
+    prose = /^[-*+]\s/.test(l) ? l.replace(/^[-*+]\s/, '') : l; // first bullet or first prose line
+    break;
+  }
+  if (!prose) prose = text.trim().replace(/\s+/g, ' ');
+  // Prefer the first sentence.
+  const m = prose.match(/^(.*?[.!?])(\s|$)/);
+  let out = (m?.[1] ?? prose).replace(/\s+/g, ' ').trim();
+  if (out.length > maxLen) out = out.slice(0, maxLen - 1).trimEnd() + '…';
+  return out;
+}
+
+/**
  * Build the reason string by walking the evidence ladder:
  *   review → pr_body → issue → commit_message → behavioral
  */
@@ -87,31 +114,25 @@ function buildReason(bundle: EvidenceBundle): string {
   if (usedSource === 'review' && bundle.reviewComments.length > 0) {
     const top = bundle.reviewComments[0]!;
     const prPart = bundle.introducingPr ? ` (PR #${bundle.introducingPr.number})` : '';
-    return `${top.body.trim()}${prPart}`;
+    return `${clean(top.body)}${prPart}`;
   }
 
   // 2. PR body.
   if (usedSource === 'pr_body' && bundle.introducingPr) {
     const pr = bundle.introducingPr;
-    const body = pr.body.trim();
-    const summary = body.length > 120 ? body.slice(0, 120) + '…' : body;
-    return `${summary} (PR #${pr.number}: ${pr.title})`;
+    return `${clean(pr.body)} (PR #${pr.number}: ${pr.title})`;
   }
 
   // 3. Linked issue.
   if (usedSource === 'issue' && bundle.linkedIssue) {
     const issue = bundle.linkedIssue;
-    const body = issue.body.trim();
-    const summary = body.length > 120 ? body.slice(0, 120) + '…' : body;
-    return `${summary} (Issue #${issue.number}: ${issue.title})`;
+    return `${clean(issue.body)} (Issue #${issue.number}: ${issue.title})`;
   }
 
   // 4. Commit message.
   if (usedSource === 'commit_message' && bundle.candidates.length > 0) {
     const top = bundle.candidates[0]!;
-    const msg = top.commit.message.trim();
-    const summary = msg.length > 120 ? msg.slice(0, 120) + '…' : msg;
-    return `${summary} (commit ${top.commit.sha.slice(0, 7)})`;
+    return `${clean(top.commit.message)} (commit ${top.commit.sha.slice(0, 7)})`;
   }
 
   // 5. Behavioral hints.
@@ -127,9 +148,7 @@ function buildReason(bundle: EvidenceBundle): string {
   // Fallback: best available.
   if (bundle.candidates.length > 0) {
     const top = bundle.candidates[0]!;
-    const msg = top.commit.message.trim();
-    const summary = msg.length > 120 ? msg.slice(0, 120) + '…' : msg;
-    return `${summary} (commit ${top.commit.sha.slice(0, 7)})`;
+    return `${clean(top.commit.message)} (commit ${top.commit.sha.slice(0, 7)})`;
   }
 
   return 'No recorded decision found.';
