@@ -1,0 +1,59 @@
+{
+  "_comment": "Offline fixture benchmark corpus (issue #36). Part H.1 dataset format. Each item targets a synthetic repo built deterministically by test/fixtures/buildRepo.ts. The 'repo' field names the fixture builder (NOT a real GitHub repo) and 'commitPin' is a stable label rather than a SHA, because synthetic SHAs are resolved at build time. The harness builds each repo in a temp dir and runs the REAL Engine.explainLine against it offline (LocalGitClient + SqliteStore(':memory:') + a HostClient backed by loadHostResponses). Ground truth mirrors test/fixtures/groundTruth.ts; the engine never sees this file — it is the answer key.",
+  "items": [
+    {
+      "repo": "rename",
+      "commitPin": "rename",
+      "path": "authentication.ts",
+      "line": 2,
+      "questionType": "why-line",
+      "expected": {},
+      "notes": "validateToken authored in auth.ts, then the file was renamed. No PR linked in this synthetic repo, so there is no expected introducingPr — this item exercises the rename/move boundary and chainBroken honesty, not PR recovery."
+    },
+    {
+      "repo": "move-to-utility",
+      "commitPin": "post-move-use",
+      "path": "util/retry.ts",
+      "line": 1,
+      "questionType": "why-line",
+      "expected": {},
+      "notes": "retry() first written inline in service.ts then moved into util/retry.ts. The cross-file pickaxe stitch must find the origin in the OLD file. No PR linked → chainBroken, LOW confidence."
+    },
+    {
+      "repo": "squash",
+      "commitPin": "squash",
+      "path": "payments.ts",
+      "line": 2,
+      "questionType": "why-line",
+      "expected": { "introducingPr": 42, "introducingIssue": 17 },
+      "notes": "Squash-merge on main maps 1:1 to PR #42 (Closes #17). Engine must surface the squash commit and recover PR + issue + the substantive review comment. MEDIUM confidence."
+    },
+    {
+      "repo": "cherry-pick",
+      "commitPin": "cherry-picked",
+      "path": "charge.ts",
+      "line": 2,
+      "questionType": "why-line",
+      "expected": { "introducingPr": 55, "introducingIssue": 23 },
+      "notes": "Cherry-pick commit on main carries the canonical '(cherry picked from commit <sha>)' trailer. Engine must follow it to PR #55 (Closes #23). MEDIUM confidence."
+    },
+    {
+      "repo": "cosmetic-only",
+      "commitPin": "cosmetic",
+      "path": "processor.ts",
+      "line": 2,
+      "questionType": "why-line",
+      "expected": {},
+      "notes": "A cosmetic reformat touched the target line after the behavioral commit introduced the logic. The D.1 classifier must look past the cosmetic commit. No PR → chainBroken, LOW."
+    },
+    {
+      "repo": "missing-pr",
+      "commitPin": "missing-pr",
+      "path": "cache.ts",
+      "line": 4,
+      "questionType": "why-line",
+      "expected": {},
+      "notes": "Low-info 'fix stuff' commit with no PR or issue. Engine must fall back to behavioral evidence, set chainBroken=true, and report LOW confidence honestly."
+    }
+  ]
+}
