@@ -140,10 +140,16 @@ Two things this shows:
 
 > Linux is developed on mailing lists; its GitHub repo is a read-only mirror with **zero PRs**.
 > The correct behaviour is to find the introducing commit + author + message via
-> blame-through-time and **honestly report no PR/issue** — the "honest LOW" path, demonstrating
-> that honesty about coverage is a feature, not a gap.
+> blame-through-time and **honestly report no PR/issue** — the "honest LOW" path.
 
-> _Pending: clone still downloading; row appended after the run._
+**Not run directly.** `torvalds/linux` has **1.46M commits**; a blobless clone failed/was
+impractical to materialize here. But the behaviour it would exercise — *find the commit, report
+no PR honestly* — is already validated by the cases above where no PR exists: **AutoFixOps
+(0/19, all honest LOW)**, the **cognee unmerged-fork commit**, and **archaeo `score.ts:23`**
+(direct-to-main). In every one the tool returns "no recorded decision found" instead of
+inventing a PR — which is exactly the Linux outcome. (For PR-less repos, a future enhancement
+is to surface the commit author + message more prominently as the "who/what" even when there's
+no PR.)
 
 ---
 
