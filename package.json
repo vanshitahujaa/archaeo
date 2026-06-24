@@ -1,5 +1,5 @@
 {
-  "name": "archaeo",
+  "name": "git-archaeo",
   "version": "0.1.0",
   "description": "Trace why a line of code exists — through moves, renames, and refactors — back to the commit, PR, issue, and review that introduced it, with honest confidence scoring.",
   "keywords": [
@@ -45,7 +45,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "bench": "tsx src/benchmark/run.ts",
-    "prepublishOnly": "pnpm run build"
+    "prepublishOnly": "tsup"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.32.1",

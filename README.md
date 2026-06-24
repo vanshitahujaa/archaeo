@@ -122,7 +122,7 @@ versions (see [`implement.md`](implement.md) Part A.4).
 ## Quickstart
 
 ```bash
-npm i -g archaeo        # requires Node 22+ (uses the built-in node:sqlite — zero native builds)
+npm i -g git-archaeo    # installs the `archaeo` command. Node 22+ (uses built-in node:sqlite — zero native builds)
 
 archaeo init            # set your LLM provider/key + GitHub token (writes ~/.config/archaeo/config.json, 0600)
 
