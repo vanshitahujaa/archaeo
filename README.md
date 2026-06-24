@@ -116,6 +116,11 @@ versions (see [`implement.md`](implement.md) Part A.4).
 > [`implement.md`](implement.md), through real issues and PRs. The README makes a *falsifiable*
 > claim — behavioral-origin tracing — and that claim is the one thing that has to be true. Not
 > yet published to npm.
+>
+> **It holds up on real repos:** see [`docs/validation.md`](docs/validation.md) — on
+> facebook/react and this repo itself, `archaeo why` traces lines to the PR that introduced
+> the logic (with the actual discussion), and honestly reports "no recorded decision" when
+> none exists.
 
 ## Install
 
