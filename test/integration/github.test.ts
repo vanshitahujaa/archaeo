@@ -90,11 +90,11 @@ describe('GitHubClient (#12)', () => {
     expect(await client.prForCommit('abc')).toBeNull();
   });
 
-  it('issuesReferencedByPr resolves #N refs from title+body and skips non-issues', async () => {
+  it('issuesReferencedByPr resolves only closing-keyword refs, ignoring bare mentions (#43)', async () => {
     const { gh, calls } = fakeOctokit({
       issues: {
         102: { number: 102, title: 'Retry on failure', body: 'need retry', state: 'closed' },
-        // 999 deliberately absent → 404 → skipped
+        // 999 is a bare mention ("also see #999") → not a closing ref → never fetched
       },
     });
     const client = new GitHubClient(OPTS, gh);
@@ -107,7 +107,9 @@ describe('GitHubClient (#12)', () => {
     });
     expect(issues).toHaveLength(1);
     expect(issues[0]?.number).toBe(102);
-    expect(calls['issues.get']).toBe(2); // tried both, one 404'd
+    // Only the closing-keyword ref is fetched — the bare "#999" mention is ignored,
+    // which is what removes the 404 storm and avoids linking the wrong artifact.
+    expect(calls['issues.get']).toBe(1);
   });
 
   it('reviewComments maps line/path/author and falls back to original_line', async () => {
