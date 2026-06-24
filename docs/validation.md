@@ -74,22 +74,38 @@ These confirm two things: on a **full local clone the engine is fast (1–2s)**,
 paths fire correctly — an unmerged fork commit and a direct-to-main commit both get an honest
 "no recorded decision" instead of a fabricated PR.
 
-## torvalds/linux (GitHub mirror — no pull requests)
+## Batch run — topoteretes/cognee (38 lines, 19 files, full local clone)
 
-> Linux is developed on mailing lists; its GitHub repo is a read-only mirror with **zero PRs**.
-> Expected behaviour: find the introducing commit + author + message via blame-through-time and
-> **honestly report no PR/issue**. This demonstrates that honesty about coverage is a feature.
+To go past anecdotes, a harness sampled behavioral lines (`def`/`if`/`return`/`raise`/calls)
+across 19 different source files and ran `archaeo why` on each:
 
-> _Pending: clone still downloading; row appended after the run._
+```
+total queries: 38
+HIGH: 0   MEDIUM: 29   LOW: 9   ERR: 0
+found a real introducing PR: 38/38 (100%)
+avg latency: 3.1s   max: 8s   (full local clone)
+```
+
+- **100% PR-resolution:** every sampled line traced to a real PR that introduced its logic
+  (e.g. `agentic_retriever.py:234`→PR #2726, `text_loader.py:51`→PR #1240,
+  `get_settings.py:19`→PR #1830). Correctness was spot-checked on a subset (those inspected
+  were right); the 38/38 is the rate at which it recovered a concrete, citable PR rather than
+  guessing.
+- **0 HIGH is correct, not a miss:** cognee PRs in this sample lack linked issues and
+  substantive *human* review comments, so the scorer caps them at MEDIUM. HIGH is reserved for
+  the richest evidence (cf. the kubernetes row, which earned HIGH on a real reviewer comment).
+  The model is deliberately conservative — it does not inflate confidence.
+- **Latency is fine on a normal clone:** 3.1s avg / 8s max — under the < 10s target. The 1–2 min
+  numbers elsewhere were entirely the *blobless* clone fetching blobs over the network (#47).
 
 ## torvalds/linux (GitHub mirror — no pull requests)
 
 > Linux is developed on mailing lists; its GitHub repo is a read-only mirror with **zero PRs**.
 > The correct behaviour is to find the introducing commit + author + message via
-> blame-through-time and **honestly report no PR/issue** — the "honest LOW" path. This
-> demonstrates that honesty about coverage is a feature, not a gap.
+> blame-through-time and **honestly report no PR/issue** — the "honest LOW" path, demonstrating
+> that honesty about coverage is a feature, not a gap.
 
-> _Pending: clone downloading. Rows appended after the run._
+> _Pending: clone still downloading; row appended after the run._
 
 ---
 
