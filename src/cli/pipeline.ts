@@ -83,22 +83,56 @@ async function buildRiskAnalyzerImpl(config: ArchaeoConfig, cwd: string): Promis
   );
 }
 
-function buildProvider(config: ArchaeoConfig): LlmProvider {
+async function buildProvider(config: ArchaeoConfig): Promise<LlmProvider> {
+  // No key (or explicitly fake) → deterministic offline summarizer.
   if (config.provider === 'fake' || config.llmKey === undefined) {
     return new FakeProvider();
   }
-  // Real providers loaded on demand so optional deps don't crash when absent.
-  // For now default to fake; the Narrator specialist fills in the real providers.
-  return new FakeProvider();
+  // Real, summarize-only providers. The SDKs are imported lazily inside each provider's
+  // complete(), so constructing them here is cheap and safe even if a SDK is absent (it
+  // surfaces a clear install error only when actually used).
+  const key = config.llmKey;
+  const model = config.model;
+  switch (config.provider) {
+    case 'anthropic': {
+      const { AnthropicProvider } = await import('../llm/providers/anthropic.js');
+      return new AnthropicProvider({ apiKey: key, model });
+    }
+    case 'openai': {
+      const { OpenAiProvider } = await import('../llm/providers/openai.js');
+      return new OpenAiProvider({ apiKey: key, model });
+    }
+    case 'gemini': {
+      const { GeminiProvider } = await import('../llm/providers/gemini.js');
+      return new GeminiProvider({ apiKey: key, model });
+    }
+    default:
+      return new FakeProvider();
+  }
+}
+
+/** Warn (to stderr) when the clone is partial/shallow so slow/incomplete traces are explained. */
+async function warnOnCloneHealth(cwd: string): Promise<void> {
+  try {
+    const { detectCloneHealth, cloneHealthWarning } = await import(
+      '../integration/git/gitClient.js'
+    );
+    const msg = cloneHealthWarning(await detectCloneHealth(cwd));
+    if (msg) process.stderr.write(msg + '\n');
+  } catch {
+    // Best-effort only — never let a health check block the actual command.
+  }
 }
 
 export async function buildPipeline(opts: PipelineOptions): Promise<Pipeline> {
-  const provider = buildProvider(opts.config);
+  await warnOnCloneHealth(opts.cwd);
+  const provider = await buildProvider(opts.config);
   const summarizer = new Summarizer(provider);
   const engine = await buildEngine(opts.config, opts.cwd, opts.noCache ?? false);
   return { engine, summarizer };
 }
 
 export async function buildRiskPipeline(opts: PipelineOptions): Promise<RiskAnalyzer> {
+  await warnOnCloneHealth(opts.cwd);
   return buildRiskAnalyzerImpl(opts.config, opts.cwd);
 }

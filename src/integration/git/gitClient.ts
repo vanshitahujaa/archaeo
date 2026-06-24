@@ -509,3 +509,34 @@ export function parseDiffFiles(stdout: string): CommitDiffFile[] {
   push();
   return files;
 }
+
+// ---------------------------------------------------------------------------
+// Clone health (#47) — partial/shallow clones make `-L`/pickaxe fetch blobs over the
+// network on demand, which is pathologically slow on deep histories. Detect it so the CLI
+// can warn the user instead of leaving them staring at a hang.
+// ---------------------------------------------------------------------------
+
+export interface CloneHealth {
+  /** A partial clone (e.g. `--filter=blob:none`) — blobs fetched lazily over the network. */
+  partial: boolean;
+  /** A shallow clone (`--depth`) — history is truncated, so provenance is incomplete. */
+  shallow: boolean;
+}
+
+export async function detectCloneHealth(cwd: string): Promise<CloneHealth> {
+  const shallow = (await gitSafe(['rev-parse', '--is-shallow-repository'], { cwd })) === 'true';
+  const filter = await gitSafe(['config', '--get', 'remote.origin.partialclonefilter'], { cwd });
+  const promisor = await gitSafe(['config', '--get', 'remote.origin.promisor'], { cwd });
+  return { partial: filter.length > 0 || promisor === 'true', shallow };
+}
+
+/** A one-line user warning for an unhealthy clone, or null when the clone is full. */
+export function cloneHealthWarning(h: CloneHealth): string | null {
+  if (h.shallow) {
+    return 'warning: shallow clone detected — provenance history is truncated and may be incomplete. Run `git fetch --unshallow` for accurate results.';
+  }
+  if (h.partial) {
+    return 'warning: partial (blobless) clone detected — history blobs are fetched over the network on demand, which can make tracing very slow on large repos. A full clone is much faster.';
+  }
+  return null;
+}

@@ -106,12 +106,17 @@ function toPullRequest(p: GhPull): PullRequest {
 }
 
 /**
- * Extract issue numbers referenced from PR text. Matches GitHub closing keywords
- * (`closes #12`, `fixes #5`) and bare `#N` references, de-duplicated.
+ * Extract issue numbers a PR actually CLOSES, using GitHub's closing keywords
+ * (`closes/closed/close/fixes/fixed/fix/resolves/resolved/resolve #N`), de-duplicated.
+ *
+ * We deliberately ignore bare `#N` mentions: in real PR bodies most `#N` are references to
+ * other PRs, version tags, or discussion links — fetching each one produced a storm of 404s
+ * (#43) and occasionally linked the wrong artifact. Closing keywords are the high-precision
+ * signal for "the issue this change resolves".
  */
 export function referencedIssueNumbers(body: string): number[] {
   const nums = new Set<number>();
-  const re = /#(\d+)\b/g;
+  const re = /\b(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\b[:\s]+#(\d+)\b/gi;
   let m: RegExpExecArray | null;
   while ((m = re.exec(body)) !== null) {
     const n = Number(m[1]);
@@ -133,6 +138,9 @@ export class GitHubClient implements HostClient {
       (new Octokit({
         auth: opts.token,
         ...(opts.baseUrl ? { baseUrl: opts.baseUrl } : {}),
+        // Silence Octokit's own console logging — a missing issue/PR is an expected 404 we
+        // handle, not something to spew "GET … - 404" onto the user's terminal (#43).
+        log: { debug: () => {}, info: () => {}, warn: () => {}, error: () => {} },
       }) as unknown as OctokitLike);
   }
 
