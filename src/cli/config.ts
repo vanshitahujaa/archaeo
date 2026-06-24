@@ -7,9 +7,9 @@
  */
 
 import { execSync } from 'child_process';
-import { existsSync, readFileSync } from 'fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import { homedir } from 'os';
-import { join } from 'path';
+import { dirname, join } from 'path';
 import { ArchaeoError, MissingKeyError, MissingTokenError } from '../core/index.js';
 
 export type LlmProviderName = 'anthropic' | 'openai' | 'gemini' | 'fake';
@@ -32,12 +32,34 @@ export interface ResolveConfigInput {
 }
 
 /** Shape of ~/.config/archaeo/config.json */
-interface ConfigFile {
+export interface ConfigFile {
   llmKey?: string;
   hostToken?: string;
   provider?: LlmProviderName;
   model?: string;
   dbPath?: string;
+}
+
+/** Absolute path to the user config file. */
+export function configFilePath(): string {
+  return join(homedir(), '.config', 'archaeo', 'config.json');
+}
+
+/**
+ * Merge `patch` into the existing config file (creating it if needed) and write it back with
+ * owner-only permissions (0600 — it can hold secrets). Returns the path written. Used by
+ * `archaeo init`. Never logs the values.
+ */
+export function writeConfigFile(patch: Partial<ConfigFile>): string {
+  const path = configFilePath();
+  mkdirSync(dirname(path), { recursive: true });
+  const existing = readConfigFile() ?? {};
+  const merged: Record<string, unknown> = { ...existing, ...patch };
+  for (const k of Object.keys(merged)) {
+    if (merged[k] === undefined || merged[k] === '') delete merged[k];
+  }
+  writeFileSync(path, JSON.stringify(merged, null, 2) + '\n', { mode: 0o600 });
+  return path;
 }
 
 /** Read and parse the config file; returns null if it doesn't exist. */

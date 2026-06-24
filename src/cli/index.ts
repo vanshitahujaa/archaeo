@@ -9,6 +9,7 @@ import { ArchaeoError } from '../core/index.js';
 import { runWhy } from './commands/why.js';
 import { runRisk } from './commands/risk.js';
 import { runExplainCommit } from './commands/explain-commit.js';
+import { runInit } from './commands/init.js';
 
 const program = new Command();
 
@@ -19,6 +20,25 @@ program
       'issue, and review that introduced it — with honest confidence scoring.',
   )
   .version('0.1.0');
+
+program
+  .command('init')
+  .description('Set up your LLM provider/key and GitHub token (writes ~/.config/archaeo/config.json)')
+  .option('--provider <provider>', 'anthropic | openai | gemini | fake')
+  .option('--key <key>', 'LLM provider API key')
+  .option('--token <token>', 'GitHub token (env GITHUB_TOKEN / gh CLI also work)')
+  .option('--model <model>', 'llm model id (blank = provider default)')
+  .option('-y, --yes', 'non-interactive; write only the flags provided')
+  .action(async (opts: Record<string, unknown>) => {
+    const out = await runInit({
+      provider: opts.provider as string | undefined,
+      key: opts.key as string | undefined,
+      token: opts.token as string | undefined,
+      model: opts.model as string | undefined,
+      yes: opts.yes === true,
+    });
+    process.stdout.write(out + '\n');
+  });
 
 program
   .command('why')

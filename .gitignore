@@ -9,3 +9,6 @@ coverage/
 *.db-journal
 *.db-wal
 test/.tmp/
+
+# npm pack artifacts
+*.tgz
