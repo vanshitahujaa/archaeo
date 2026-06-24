@@ -27,6 +27,14 @@ export const COMMENT_WEIGHTS = {
 /** Penalty applied when the comment is a canned/low-signal phrase. */
 export const CANNED_PENALTY = 0.6;
 
+/**
+ * Penalty applied when the comment's author is a bot (#48). Withholding the small
+ * `humanAuthor` bonus is not enough: a long, causal-sounding bot review (e.g. CodeRabbit)
+ * could still outrank a real reviewer. This penalty ensures a human comment of equal content
+ * always wins, and a pure-noise bot comment drops out entirely.
+ */
+export const BOT_PENALTY = 0.5;
+
 /** Minimum body length (chars) to count as substantial. */
 export const SUBSTANTIAL_LENGTH = 40;
 
@@ -85,7 +93,12 @@ export function scoreComment(comment: ReviewComment, introducingPaths: string[])
   if (anchored) score += COMMENT_WEIGHTS.anchored;
   if (hasCausalLanguage(comment.body)) score += COMMENT_WEIGHTS.causalLanguage;
   if (comment.body.trim().length >= SUBSTANTIAL_LENGTH) score += COMMENT_WEIGHTS.substantialLength;
-  if (!isBotAuthor(comment.author)) score += COMMENT_WEIGHTS.humanAuthor;
+  if (isBotAuthor(comment.author)) {
+    // Bots get no human-author bonus AND a hard penalty so they never outrank a human (#48).
+    score -= BOT_PENALTY;
+  } else {
+    score += COMMENT_WEIGHTS.humanAuthor;
+  }
   if (isCanned(comment.body)) score -= CANNED_PENALTY;
   return Math.max(0, Math.min(1, score));
 }

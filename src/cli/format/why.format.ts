@@ -129,9 +129,12 @@ function renderClear(bundle: EvidenceBundle, answer: WhyAnswer): string {
     lines.push(`Review note: "${rc.body.trim()}"  (reviewer: ${rc.author})`);
   }
 
-  // Co-changed paths.
+  // Co-changed paths (capped — large PRs touch dozens of files; #49).
   if (bundle.behavioral.coChangedPaths.length > 0) {
-    lines.push(`Also changed in that commit: ${bundle.behavioral.coChangedPaths.join(', ')}`);
+    const paths = bundle.behavioral.coChangedPaths;
+    const shown = paths.slice(0, 5).join(', ');
+    const extra = paths.length > 5 ? ` (+${paths.length - 5} more)` : '';
+    lines.push(`Also changed in that commit: ${shown}${extra}`);
   }
 
   // Risk hint — crude "high/medium/low" derived from confidence.
