@@ -98,6 +98,25 @@ avg latency: 3.1s   max: 8s   (full local clone)
 - **Latency is fine on a normal clone:** 3.1s avg / 8s max — under the < 10s target. The 1–2 min
   numbers elsewhere were entirely the *blobless* clone fetching blobs over the network (#47).
 
+## File-level (`risk`) + line-level (`why`) — ~90 runs across 2 repos
+
+Beyond `why`, the file-level command `archaeo risk <file>` was batched alongside it:
+
+| Repo | `why` (line-level) | `risk` (file-level) |
+|---|---|---|
+| **topoteretes/cognee** (25 files) | 19 lines: 13 MEDIUM / 6 LOW, **PR-found 19/19 (100%)**, avg 3.0s | 25 files: 1 HIGH / 2 MED / 22 LOW, avg 2.0/10 |
+| **vanshitahujaa/Auto_fix_Ops** (20 files) | 19 lines: **0/19 PR-found, all honest LOW**, avg 0.8s | 20 files: 1 HIGH / 9 MED / 10 LOW, avg 3.3/10 |
+
+Two things this shows:
+
+- **`why` is honestly bimodal.** 100% PR-resolution on the PR-driven repo; **0%** on the
+  small repo developed via direct-to-main commits — where it correctly returns honest LOW for
+  every line instead of fabricating a PR. That 0% is the product *working*, not failing.
+- **`risk` produces a useful hotspot ranking, not noise.** On AutoFixOps it flagged
+  `api/main.py` at **7.0/10 (HIGH)** — the central, most-churned file — while stable utilities
+  scored LOW. That is exactly the "what's risky to touch here" signal the command promises.
+- **Fast across the board:** 0.8–3.0s on full local clones.
+
 ## torvalds/linux (GitHub mirror — no pull requests)
 
 > Linux is developed on mailing lists; its GitHub repo is a read-only mirror with **zero PRs**.
