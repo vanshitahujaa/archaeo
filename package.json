@@ -1,16 +1,28 @@
 {
   "name": "archaeo",
   "version": "0.1.0",
-  "description": "Recover the decisions behind code. Trace why a line of code exists — through moves, renames, and refactors — back to the commit, PR, issue, and review that introduced the logic, with honest confidence scoring.",
+  "description": "Trace why a line of code exists — through moves, renames, and refactors — back to the commit, PR, issue, and review that introduced it, with honest confidence scoring.",
   "keywords": [
     "git",
-    "blame",
+    "git-history",
+    "git-blame",
     "provenance",
     "code-archaeology",
+    "developer-tools",
+    "code-analysis",
     "cli",
-    "git-history"
+    "typescript"
   ],
   "license": "MIT",
+  "author": "vanshitahujaa",
+  "homepage": "https://github.com/vanshitahujaa/archaeo#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vanshitahujaa/archaeo.git"
+  },
+  "bugs": {
+    "url": "https://github.com/vanshitahujaa/archaeo/issues"
+  },
   "type": "module",
   "packageManager": "pnpm@9.15.9",
   "engines": {
@@ -21,7 +33,8 @@
   },
   "files": [
     "dist",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
   "scripts": {
     "build": "tsup",
@@ -31,15 +44,13 @@
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "test": "vitest run",
     "test:watch": "vitest",
-    "bench": "tsx src/benchmark/run.ts"
+    "bench": "tsx src/benchmark/run.ts",
+    "prepublishOnly": "pnpm run build"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.32.1",
     "@octokit/rest": "^21.0.2",
-    "commander": "^12.1.0",
-    "simple-git": "^3.27.0"
-  },
-  "optionalDependencies": {
-    "@anthropic-ai/sdk": "^0.32.1"
+    "commander": "^12.1.0"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",

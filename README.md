@@ -112,37 +112,43 @@ versions (see [`implement.md`](implement.md) Part A.4).
 
 ## Status
 
-> **In active development.** V1 is being built module-by-module against the spec in
-> [`implement.md`](implement.md), through real issues and PRs. The README makes a *falsifiable*
-> claim — behavioral-origin tracing — and that claim is the one thing that has to be true. Not
-> yet published to npm.
->
-> **It holds up on real repos:** see [`docs/validation.md`](docs/validation.md) — on
-> facebook/react and this repo itself, `archaeo why` traces lines to the PR that introduced
-> the logic (with the actual discussion), and honestly reports "no recorded decision" when
-> none exists.
+> **V1.** Built module-by-module against the spec in [`implement.md`](implement.md) through real
+> issues and PRs, and **validated on real repos** ([`docs/validation.md`](docs/validation.md)):
+> on **kubernetes** a 30-line batch resolved 28/30 (93%) to the real introducing PR (6 HIGH),
+> and **cognee** 38/38 (100%) — including surfacing the human reviewer's design critique — while
+> honestly reporting "no recorded decision found" where none exists. The README makes a
+> *falsifiable* claim — behavioral-origin tracing — and it holds.
 
-## Install
+## Quickstart
 
 ```bash
-# once published:
-npm i -g archaeo
+npm i -g archaeo        # requires Node 22+ (uses the built-in node:sqlite — zero native builds)
 
-# from source:
-git clone https://github.com/vanshitahujaa/archaeo.git
-cd archaeo
-corepack pnpm@9 install
-corepack pnpm@9 build
+archaeo init            # set your LLM provider/key + GitHub token (writes ~/.config/archaeo/config.json, 0600)
+
+cd ~/code/your-repo     # a normal (full) clone of a GitHub repo
+archaeo why src/auth.ts:57
+```
+
+No key? `archaeo` still runs fully offline with a deterministic summarizer
+(`--provider fake`) — you get the commit/PR/issue linkage, just not an LLM-written sentence.
+
+**From source:**
+
+```bash
+git clone https://github.com/vanshitahujaa/archaeo.git && cd archaeo
+corepack pnpm@9 install && corepack pnpm@9 build
 node dist/cli/index.js --help
 ```
 
-Requires **Node 22+** (the local cache uses the built-in `node:sqlite` — zero native builds;
-see [`DECISIONS.md`](DECISIONS.md) D-001).
+Default LLM provider is **Anthropic** (`@anthropic-ai/sdk` ships with the package). To use
+OpenAI or Gemini instead, install its SDK (`npm i openai` or `npm i @google/generative-ai`) and
+pass `--provider openai|gemini`.
 
 ## Configuration
 
 `archaeo` needs a host token (to fetch PR/issue/review evidence) and an LLM key (to summarize
-it). Both are resolved without interactive prompts:
+it). The easiest setup is `archaeo init`; otherwise each is resolved in this order at run time:
 
 | | Resolution order |
 |---|---|
