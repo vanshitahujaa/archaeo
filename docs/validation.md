@@ -62,6 +62,25 @@ _(Latency on this query was ~97s because the clone was **blobless** — every hi
 was fetched over the network mid-trace. On a normal full clone this is local-disk fast;
 tracked in #47.)_
 
+### Batch — 30 lines across 30 different kubernetes files
+
+A harness sampled a behavioral line in 30 distinct recently-added `.go` files and ran
+`archaeo why` on each (blobless clone, 150s per-query cap):
+
+```
+HIGH 6   MEDIUM 16   LOW 7   ERR 0   TIMEOUT 1
+found a real introducing PR: 28/30 (93%)
+latency: min 3s   median 6s   max 150s (the timeout)   avg 15.1s
+```
+
+- **93% PR-resolution on a 138k-commit repo**, with a genuine confidence spread — **6 HIGH**
+  (PRs carrying linked issues + human review comments, e.g. `workload_aware_preemption.go:143`
+  →PR #139375, `compression.go:65`→PR #139482), 16 MEDIUM, 7 LOW.
+- **Median 6s per query** even on the blobless clone (recently-added files = shallow `-L`).
+  The 2 non-hits: one honest LOW-no-PR, and one **TIMEOUT on a *vendored* etcd file**
+  (`vendor/go.etcd.io/...`) whose deep upstream history melts a blobless trace — exactly the
+  #47 case, and a fair argument to skip `vendor/` by default.
+
 ## Local working clones (full clones — fast, real day-to-day usage)
 
 | Repo | Question (path:line) | archaeo answer | Confidence | Correct? |
@@ -130,9 +149,10 @@ Two things this shows:
 
 ## Verdict
 
-On PR-driven repos (**kubernetes, react, archaeo**) the engine reliably traces a line to the
-PR that introduced the logic, skips cosmetic commits, and surfaces the real review discussion —
-including, on kubernetes, the human reviewer's design critique at HIGH confidence. On commits
+On PR-driven repos the engine reliably traces a line to the PR that introduced the logic, skips
+cosmetic commits, and surfaces the real review discussion. At batch scale: **kubernetes 28/30
+(93%) PR-resolution with 6 HIGH**, **cognee 38/38 (100%)** — including, on kubernetes, the human
+reviewer's design critique at HIGH confidence. On commits
 that genuinely have no merged PR (fork branches, direct-to-main, Linux's PR-less mirror) it says
 *"no recorded decision found"* instead of inventing one. **The core thesis — recoverable,
 cited, honest behavioral-origin tracing — holds on real, famous codebases.** V1 clears the bar.
